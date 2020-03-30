@@ -1,9 +1,13 @@
-import React, {useRef} from 'react';
-import {Image} from 'react-native';
+import React, {useRef, useState} from 'react';
 import PropTypes from 'prop-types';
+import {Image} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+
 import logo from '~/assets/logo.png';
 
-import BackGround from '~/components/Background';
+import Background from '~/components/Background';
+import {signUpRequest} from '~/store/modules/auth/actions';
+
 import {
   Container,
   Form,
@@ -13,60 +17,77 @@ import {
   SignLinkText,
 } from './styles';
 
-export default function SignIn({navigation}) {
-  function navigateToSignIn() {
-    navigation.navigate('SignIn');
-  }
-
-  function handleSubmit() {}
+export default function SignUp({navigation}) {
+  const dispatch = useDispatch();
 
   const emailRef = useRef();
   const passwordRef = useRef();
 
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const loading = useSelector(state => state.auth.loading);
+
+  function handleSubmit() {
+    dispatch(signUpRequest(name, email, password));
+  }
+
   return (
-    <BackGround>
+    <Background>
       <Container>
-        <Image tintColor="#dab22f" source={logo} />
+        <Image source={logo} tintColor="#dab22f" />
+
         <Form>
           <FormInput
             icon="person-outline"
             autoCorrect={false}
             autoCapitalize="none"
-            placeholder="Seu nome completo"
+            placeholder="Nome completo"
             returnKeyType="next"
             onSubmitEditing={() => emailRef.current.focus()}
+            value={name}
+            onChangeText={setName}
           />
+
           <FormInput
             icon="mail-outline"
-            keyboarType="email-adress"
+            keyboardType="email-address"
             autoCorrect={false}
             autoCapitalize="none"
             placeholder="Digite seu e-mail"
             ref={emailRef}
             returnKeyType="next"
             onSubmitEditing={() => passwordRef.current.focus()}
+            value={email}
+            onChangeText={setEmail}
           />
+
           <FormInput
             icon="lock-outline"
             secureTextEntry
-            placeholder="Digite sua senha"
+            placeholder="Sua senha secreta"
             ref={passwordRef}
             returnKeyType="send"
             onSubmitEditing={handleSubmit}
+            value={password}
+            onChangeText={setPassword}
           />
 
-          <SubmitButton onPress={() => {}}>Cadastrar</SubmitButton>
+          <SubmitButton loading={loading} onPress={handleSubmit}>
+            Criar conta
+          </SubmitButton>
         </Form>
 
-        <SignLink onPress={navigateToSignIn}>
-          <SignLinkText>Já sou cadastrado</SignLinkText>
+        <SignLink onPress={() => navigation.navigate('SignIn')}>
+          <SignLinkText>Já tenho conta</SignLinkText>
         </SignLink>
       </Container>
-    </BackGround>
+    </Background>
   );
 }
 
-SignIn.propTypes = {
+SignUp.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
   }).isRequired,
